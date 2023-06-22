@@ -3,7 +3,7 @@ import { JwtService } from "@nestjs/jwt";
 import { UsersService } from "./users.service";
 import { usersProviders } from "./users.providers";
 import { AuthService } from "../auth/auth.service";
-import { UsersController } from "./users.controller";
+import { Sa_usersController } from "./super_admin_api/sa_users.controller";
 import { UsersRepository } from "./users.repository";
 import { postsProviders } from "../posts/posts.providers";
 import { blogsProviders } from "../blogs/blogs.providers";
@@ -26,7 +26,7 @@ import { BanListRepository } from "../sup-services/query/ban-list.repository";
 
 @Module({
     imports: [DatabaseModule, MailModule],
-    controllers: [UsersController],
+    controllers: [Sa_usersController],
     providers: [
         UsersService,
         QueryService,

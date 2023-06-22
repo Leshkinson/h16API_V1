@@ -30,9 +30,23 @@ export class UsersRepository {
         searchEmailTerm: { email: { $regex: RegExp } } | NonNullable<unknown> = {},
         banStatus: any,
     ): Promise<IUser[]> {
-        console.log("banStatus in findAll", banStatus);
         return this.userModel
             .find({ $and: [{ $or: [searchLoginTerm, searchEmailTerm] }, banStatus] })
+            .sort({ [sortBy]: sortDirection })
+            .skip(skip)
+            .limit(limit);
+    }
+
+    public async findAllBanned(
+        sortBy = "createdAt",
+        sortDirection: SortOrder = "desc",
+        skip = 0,
+        limit = 10,
+        searchLoginTerm: { login: { $regex: RegExp } } | NonNullable<unknown> = {},
+        blogId: string,
+    ) {
+        return this.userModel
+            .find({ $and: [searchLoginTerm, { "banInfo.isBanned": true }, { "banInfo.blogId": blogId }] })
             .sort({ [sortBy]: sortDirection })
             .skip(skip)
             .limit(limit);
@@ -90,8 +104,16 @@ export class UsersRepository {
         searchEmailTerm: { email: { $regex: RegExp } } | NonNullable<unknown> = {},
         banStatus: any,
     ): Promise<number> {
-        console.log("ban status in getUsersCount", banStatus);
         return this.userModel.countDocuments({ $and: [{ $or: [searchLoginTerm, searchEmailTerm] }, banStatus] });
+    }
+
+    public async getBannedUsersCount(
+        searchLoginTerm: { login: { $regex: RegExp } } | NonNullable<unknown> = {},
+        blogId: string,
+    ): Promise<number> {
+        return this.userModel.countDocuments({
+            $and: [searchLoginTerm, { "banInfo.isBanned": true }, { "banInfo.blogId": blogId }],
+        });
     }
 
     public async createUser(login: string, password: string, email: string): Promise<IUser> {

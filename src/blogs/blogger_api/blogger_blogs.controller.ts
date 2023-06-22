@@ -211,6 +211,7 @@ export class BloggerBlogsController {
             }
         }
     }
+
     @UseGuards(AccessGuard)
     @Delete(":blogId/posts/:postId")
     public async deletePost(
@@ -241,6 +242,18 @@ export class BloggerBlogsController {
                 res.sendStatus(HttpStatus.FORBIDDEN);
                 console.log(error.message);
                 return;
+            }
+        }
+    }
+
+    @UseGuards(AccessGuard)
+    @Get("/comments")
+    public async getAllCommentsForTheBlogs(@Req() req: Request, @Res() res: Response) {
+        try {
+        } catch (error) {
+            if (error instanceof Error) {
+                res.sendStatus(HttpStatus.NOT_FOUND);
+                console.log(error.message);
             }
         }
     }

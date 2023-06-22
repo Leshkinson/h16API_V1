@@ -24,4 +24,5 @@ export interface IBanUser {
 
 export interface IBanInfo extends IBanUser {
     banDate: string;
+    blogId: string;
 }

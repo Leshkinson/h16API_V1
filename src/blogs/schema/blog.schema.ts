@@ -8,6 +8,10 @@ export const BlogSchema = new Schema(
         websiteUrl: { type: "string", required: true },
         isMembership: { type: "boolean", required: true },
         userId: { type: "string", required: true },
+        banInfo: {
+            isBanned: { type: "boolean", default: false },
+            banDate: { type: "Date", default: null },
+        },
     },
     { timestamps: true },
 );

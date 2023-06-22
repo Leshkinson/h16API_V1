@@ -1,15 +1,15 @@
-import { AuthGuard } from "../auth.guard";
+import { AuthGuard } from "../../auth.guard";
 import { Request, Response } from "express";
-import { UsersService } from "./users.service";
-import { BanUserDto } from "./dto/ban-user.dto";
-import { UsersRequest } from "./types/user.type";
-import { IUser } from "./interface/user.interface";
-import { CreateUserDto } from "./dto/create-user.dto";
-import { QueryService } from "../sup-services/query/query.service";
+import { UsersService } from "../users.service";
+import { BanUserDto } from "../dto/ban-user.dto";
+import { UsersRequest } from "../types/user.type";
+import { IUser } from "../interface/user.interface";
+import { CreateUserDto } from "../dto/create-user.dto";
+import { QueryService } from "../../sup-services/query/query.service";
 import { Controller, Get, Post, Body, Param, Delete, Res, Req, HttpStatus, Put } from "@nestjs/common";
 
 @Controller("sa/users")
-export class UsersController {
+export class Sa_usersController {
     constructor(private readonly usersService: UsersService, private readonly queryService: QueryService) {}
 
     @Post()

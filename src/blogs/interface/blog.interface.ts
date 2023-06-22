@@ -23,3 +23,9 @@ export interface IBlogWithBlogOwnerInfo extends IBlogWithUserId {
         readonly userLogin: string;
     };
 }
+
+export interface IBlogBanned {
+    isBanned: boolean;
+    banReason: string;
+    blogId: string;
+}

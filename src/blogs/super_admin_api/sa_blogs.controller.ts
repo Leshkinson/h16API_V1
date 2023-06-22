@@ -57,4 +57,16 @@ export class SABlogsController {
             }
         }
     }
+
+    @AuthGuard()
+    @Put(":id/ban")
+    public async banOrUnbanBlog(@Param("id") id: string, @Res() res: Response) {
+        try {
+        } catch (error) {
+            if (error instanceof Error) {
+                res.sendStatus(HttpStatus.NOT_FOUND);
+                console.log(error.message);
+            }
+        }
+    }
 }

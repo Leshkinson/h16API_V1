@@ -141,6 +141,15 @@ export class QueryService {
         return await this.userRepository.getUsersCount(searchLoginTerm, searchEmailTerm, banStatusCFG[banStatus]);
     }
 
+    public async getTotalCountForBannedUsersForTheBlog(
+        searchLoginTerm: string | undefined | object,
+        blogId: string,
+    ): Promise<number> {
+        if (searchLoginTerm) searchLoginTerm = { login: { $regex: new RegExp(`.*${searchLoginTerm}.*`, "i") } };
+
+        return await this.userRepository.getBannedUsersCount(searchLoginTerm, blogId);
+    }
+
     public async getUpgradePosts(
         posts: IPost[] | IPost,
         token: string | undefined,

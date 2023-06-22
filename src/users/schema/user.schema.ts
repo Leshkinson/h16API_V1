@@ -13,6 +13,7 @@ export const UserSchema = new Schema(
             isBanned: { type: "boolean", default: false },
             banDate: { type: "Date", default: null },
             banReason: { type: "string", default: null },
+            blogId: { type: "string", default: null },
         },
     },
     { timestamps: true },
@@ -27,6 +28,7 @@ UserSchema.set("toJSON", {
         delete dto.password;
         delete dto.isConfirmed;
         delete dto.code;
+        delete dto.banInfo.blogId;
     },
 });
 

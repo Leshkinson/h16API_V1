@@ -3,7 +3,7 @@ import * as bcrypt from "bcrypt";
 import { JwtPayload } from "jsonwebtoken";
 import mongoose, { RefType, SortOrder } from "mongoose";
 import { BanStatus } from "./types/user.type";
-import { BanUserDto } from "./dto/ban-user.dto";
+import { BanUserDto, BanUserDtoForBlog } from "./dto/ban-user.dto";
 import { UserModel } from "./schema/user.schema";
 import { IUser } from "./interface/user.interface";
 import { Inject, Injectable } from "@nestjs/common";
@@ -55,7 +55,6 @@ export class UsersService {
         if (searchEmailTerm) searchEmailTerm = { email: { $regex: new RegExp(`.*${searchEmailTerm}.*`, "i") } };
 
         const skip = Number((pageNumber - 1) * pageSize);
-        console.log("banStatusCFG[banStatus]", banStatusCFG[banStatus]);
 
         return await this.userRepository.findAll(
             sortBy,
@@ -66,6 +65,20 @@ export class UsersService {
             searchEmailTerm,
             banStatusCFG[banStatus],
         );
+    }
+
+    public async findAllBannedUsersForTheBlog(
+        searchLoginTerm: { login: { $regex: RegExp } } | NonNullable<unknown> = {},
+        sortBy = "createdAt",
+        sortDirection: SortOrder | undefined = "desc",
+        pageNumber = 1,
+        pageSize = 10,
+        blogId: string,
+    ): Promise<IUser[]> {
+        if (searchLoginTerm) searchLoginTerm = { login: { $regex: new RegExp(`.*${searchLoginTerm}.*`, "i") } };
+        const skip = Number((pageNumber - 1) * pageSize);
+
+        return await this.userRepository.findAllBanned(sortBy, sortDirection, skip, pageSize, searchLoginTerm, blogId);
     }
 
     public async getUserByParam(param: string): Promise<IUser | null> {
@@ -151,7 +164,7 @@ export class UsersService {
         throw new Error();
     }
 
-    public async assigningBanToUser(id: RefType, banUserDto: BanUserDto) {
+    public async assigningBanToUser(id: RefType, banUserDto: BanUserDto | BanUserDtoForBlog) {
         const candidateForBan = await this.userRepository.find(id);
         if (!candidateForBan) {
             throw new Error();
@@ -168,19 +181,20 @@ export class UsersService {
         try {
             session.startTransaction();
             if (banCondition) {
-                console.log("here1");
                 const banDate = new Date().toISOString();
                 candidateForBan.banInfo.isBanned = banUserDto.isBanned;
                 candidateForBan.banInfo.banDate = banDate;
                 candidateForBan.banInfo.banReason = banUserDto.banReason;
+                if (!(banUserDto instanceof BanUserDto)) {
+                    candidateForBan.banInfo.blogId = banUserDto.blogId;
+                }
                 await candidateForBan.save();
                 await this.banListRepository.addUserInBanList(id);
-                console.log("candidateForBan in transaction", candidateForBan);
             } else {
-                console.log("here2");
                 candidateForBan.banInfo.isBanned = banUserDto.isBanned;
                 candidateForBan.banInfo.banDate = null;
                 candidateForBan.banInfo.banReason = null;
+                candidateForBan.banInfo.blogId = null;
                 await candidateForBan.save();
                 await this.banListRepository.deleteUserFromBanList(id);
             }
