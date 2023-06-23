@@ -27,20 +27,22 @@ export class CommentsRepository {
     }
 
     public async findAllForThePost(
-        postId: string,
+        postId: string | string[],
         sortBy = "createdAt",
         sortDirection: SortOrder = "desc",
         skip: number,
         limit: number,
     ): Promise<IComment[]> {
+        const filter = Array.isArray(postId) ? { postId: { $in: postId } } : { postId: postId };
         return this.commentModel
-            .find({ postId: postId })
+            .find(filter)
             .sort({ [sortBy]: sortDirection })
             .skip(skip)
             .limit(limit);
     }
 
-    public async getCount(postId: string) {
-        return this.commentModel.find({ postId: postId }).count();
+    public async getCount(postId: string | string[]) {
+        const filter = Array.isArray(postId) ? { postId: { $in: postId } } : { postId: postId };
+        return this.commentModel.find(filter).count();
     }
 }

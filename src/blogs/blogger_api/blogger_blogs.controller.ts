@@ -250,6 +250,29 @@ export class BloggerBlogsController {
     @Get("/comments")
     public async getAllCommentsForTheBlogs(@Req() req: Request, @Res() res: Response) {
         try {
+            const request = req as RequestWithUser;
+            const { userId } = request.user;
+            // eslint-disable-next-line prefer-const
+            let { pageNumber, pageSize, sortBy, sortDirection } = req.query as BlogsRequest;
+            pageNumber = Number(pageNumber ?? 1);
+            pageSize = Number(pageSize ?? 10);
+            const comments = await this.queryService.getAllCommentsForBloggers(
+                pageNumber,
+                pageSize,
+                sortBy,
+                sortDirection,
+                userId,
+            );
+
+            const totalCount: number = await this.queryService.getTotalCountCommentsForTheAllPostForBlogger(userId);
+
+            res.status(HttpStatus.OK).json({
+                pagesCount: Math.ceil(totalCount / pageSize),
+                page: pageNumber,
+                pageSize: pageSize,
+                totalCount: totalCount,
+                items: comments,
+            });
         } catch (error) {
             if (error instanceof Error) {
                 res.sendStatus(HttpStatus.NOT_FOUND);

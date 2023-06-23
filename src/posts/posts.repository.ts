@@ -36,6 +36,10 @@ export class PostsRepository {
         return this.postModel.find({ $and: [{ _id: id }, { blogId: blogId }] });
     }
 
+    public async findAllPostsForAllBlogs(blogIdList: string[]): Promise<IPost[]> {
+        return this.postModel.find({ blogId: { $in: blogIdList } });
+    }
+
     public async updatePost(id: RefType, updatePostDto: UpdatePostDto): Promise<IPost | null> {
         return this.postModel.findOneAndUpdate({ _id: id }, updatePostDto);
     }

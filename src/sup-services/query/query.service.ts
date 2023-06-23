@@ -389,4 +389,39 @@ export class QueryService {
 
         return await Promise.all(changeBlogs);
     }
+
+    public async getListIdAllBlogsForUser(userId: string): Promise<string[]> {
+        const blogs = await this.blogRepository.findAllBlogsAll(userId);
+        return blogs.map((blog: IBlogWithUserId) => blog._id.toString());
+    }
+
+    public async getListIdAllPostsForUsersBlog(blogIdList: string[]): Promise<string[]> {
+        const posts = await this.postRepository.findAllPostsForAllBlogs(blogIdList);
+        return posts.map((post: IPost) => post._id.toString());
+    }
+
+    public async getAllCommentsForBloggers(
+        pageNumber = 1,
+        pageSize = 10,
+        sortBy = "createdAt",
+        sortDirection: SortOrder = "desc",
+        userId: string,
+    ): Promise<IComment[]> {
+        const skip: number = (+pageNumber - 1) * +pageSize;
+        const listIdAllBlogs = await this.getListIdAllBlogsForUser(userId);
+        const listIdAllPostsForUsersBlog = await this.getListIdAllPostsForUsersBlog(listIdAllBlogs);
+        return await this.commentRepository.findAllForThePost(
+            listIdAllPostsForUsersBlog,
+            sortBy,
+            sortDirection,
+            skip,
+            pageSize,
+        );
+    }
+
+    public async getTotalCountCommentsForTheAllPostForBlogger(userId: string): Promise<number> {
+        const listIdAllBlogs = await this.getListIdAllBlogsForUser(userId);
+        const listIdAllPostsForUsersBlog = await this.getListIdAllPostsForUsersBlog(listIdAllBlogs);
+        return this.commentRepository.getCount(listIdAllPostsForUsersBlog);
+    }
 }
