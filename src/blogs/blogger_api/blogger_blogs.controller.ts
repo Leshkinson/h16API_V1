@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { BlogsService } from "../blogs.service";
-import { BlogsRequest } from "../types/blog.type";
+import { BlogsRequest, BlogsRequestWithoutSNT } from "../types/blog.type";
 import { IBlog } from "../interface/blog.interface";
 import { AccessGuard } from "../../auth/access.guard";
 import { CreateBlogDto } from "../dto/create-blog.dto";
@@ -25,6 +25,7 @@ import {
     Res,
     UseGuards,
 } from "@nestjs/common";
+import { TAG_REPOSITORY } from "../../const/const";
 
 @Controller("blogger/blogs")
 export class BloggerBlogsController {
@@ -263,16 +264,50 @@ export class BloggerBlogsController {
                 sortDirection,
                 userId,
             );
-
             const totalCount: number = await this.queryService.getTotalCountCommentsForTheAllPostForBlogger(userId);
-
+            const changeComments = await this.queryService.getMapComments(comments);
             res.status(HttpStatus.OK).json({
                 pagesCount: Math.ceil(totalCount / pageSize),
                 page: pageNumber,
                 pageSize: pageSize,
                 totalCount: totalCount,
-                items: comments,
+                items: await Promise.all(changeComments),
             });
+        } catch (error) {
+            if (error instanceof Error) {
+                res.sendStatus(HttpStatus.NOT_FOUND);
+                console.log(error.message);
+            }
+        }
+    }
+
+    @UseGuards(AccessGuard)
+    @Get("/comments")
+    public async getAllPostForTheUsersBlog(@Param("blogId") blogId: string, @Req() req: Request, @Res() res: Response) {
+        try {
+            const token = req.headers.authorization?.split(" ")[1];
+            // eslint-disable-next-line prefer-const
+            let { pageNumber, pageSize, sortDirection, sortBy } = req.query as BlogsRequestWithoutSNT;
+            pageNumber = Number(pageNumber ?? 1);
+            pageSize = Number(pageSize ?? 10);
+
+            const posts: IPost[] = await this.queryService.getPostsForTheBlog(
+                blogId,
+                pageNumber,
+                pageSize,
+                sortBy,
+                sortDirection,
+            );
+            const totalCount: number = await this.queryService.getTotalCountPostsForTheBlog(blogId);
+            if (posts) {
+                res.status(HttpStatus.OK).json({
+                    pagesCount: Math.ceil(totalCount / pageSize),
+                    page: pageNumber,
+                    pageSize: pageSize,
+                    totalCount: totalCount,
+                    items: await this.queryService.getUpgradePosts(posts, token, TAG_REPOSITORY.PostsRepository),
+                });
+            }
         } catch (error) {
             if (error instanceof Error) {
                 res.sendStatus(HttpStatus.NOT_FOUND);

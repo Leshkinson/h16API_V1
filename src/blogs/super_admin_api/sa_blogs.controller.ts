@@ -1,10 +1,11 @@
-import { Controller, Get, HttpStatus, Param, Put, Req, Res } from "@nestjs/common";
+import { Body, Controller, Get, HttpStatus, Param, Put, Req, Res } from "@nestjs/common";
 import { BlogsService } from "../blogs.service";
 import { QueryService } from "../../sup-services/query/query.service";
 import { Request, Response } from "express";
 import { BlogsRequest } from "../types/blog.type";
 import { IBlog } from "../interface/blog.interface";
 import { AuthGuard } from "../../auth.guard";
+import { BanBlogDto } from "../../users/dto/ban-user.dto";
 
 @Controller("sa/blogs")
 export class SABlogsController {
@@ -60,8 +61,14 @@ export class SABlogsController {
 
     @AuthGuard()
     @Put(":id/ban")
-    public async banOrUnbanBlog(@Param("id") id: string, @Res() res: Response) {
+    public async banOrUnbanBlog(@Param("id") id: string, @Body() banBlogDto: BanBlogDto, @Res() res: Response) {
         try {
+            const blogBan = await this.blogsService.assigningBanToBlog(id, banBlogDto);
+            if (blogBan) {
+                res.sendStatus(HttpStatus.NO_CONTENT);
+                return;
+            }
+            throw new Error();
         } catch (error) {
             if (error instanceof Error) {
                 res.sendStatus(HttpStatus.NOT_FOUND);

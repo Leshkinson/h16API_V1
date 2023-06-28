@@ -1,15 +1,22 @@
-import { RefType, SortOrder } from "mongoose";
+import mongoose, { RefType, SortOrder } from "mongoose";
 import { BlogModel } from "./schema/blog.schema";
 import { IBlog, IBlogWithUserId } from "./interface/blog.interface";
 import { ForbiddenException, Inject, Injectable, NotFoundException } from "@nestjs/common";
 import { BlogsRepository } from "./blogs.repository";
 import { CreateBlogDto } from "./dto/create-blog.dto";
 import { UpdateBlogDto } from "./dto/update-blog.dto";
+import { BanBlogDto } from "../users/dto/ban-user.dto";
+import { BanListForBlogRepository } from "../sup-services/query/ban-list-for-blog.repository";
+import { BanListForBlogModel } from "../sup-services/query/schema/ban-list-for-blog.schema";
 
 @Injectable()
 export class BlogsService {
-    constructor(@Inject("blogRepository") private readonly blogRepository: BlogsRepository) {
+    constructor(
+        @Inject("blogRepository") private readonly blogRepository: BlogsRepository,
+        @Inject("banListForBlogRepository") private readonly banListForBlogRepository: BanListForBlogRepository,
+    ) {
         this.blogRepository = new BlogsRepository(BlogModel);
+        this.banListForBlogRepository = new BanListForBlogRepository(BanListForBlogModel);
     }
 
     public async createBlog(createBlogDto: CreateBlogDto, userId: string): Promise<IBlog> {
@@ -108,5 +115,46 @@ export class BlogsService {
 
     public async testingDelete(): Promise<void> {
         await this.blogRepository.deleteAll();
+    }
+
+    public async assigningBanToBlog(id: RefType, banBlogDto: BanBlogDto) {
+        const candidateBlogForBan = await this.findOne(id);
+        if (candidateBlogForBan) {
+            throw new Error();
+        }
+
+        const banCondition = !candidateBlogForBan.banInfo.isBanned && banBlogDto.isBanned;
+        const unBanCondition = candidateBlogForBan.banInfo.isBanned && !banBlogDto.isBanned;
+        if (!banCondition && !unBanCondition) {
+            return false;
+        }
+
+        const session = await mongoose.startSession();
+        try {
+            session.startTransaction();
+            if (banCondition) {
+                const banDate = new Date().toISOString();
+                candidateBlogForBan.banInfo.isBanned = banBlogDto.isBanned;
+                candidateBlogForBan.banInfo.banDate = banDate;
+                await candidateBlogForBan.save();
+                await this.banListForBlogRepository.addBlogInBanList(id);
+            } else {
+                candidateBlogForBan.banInfo.isBanned = banBlogDto.isBanned;
+                candidateBlogForBan.banInfo.banDate = null;
+                await candidateBlogForBan.save();
+                await this.banListForBlogRepository.deleteBlogFromBanList(id);
+            }
+            await session.commitTransaction();
+            console.log("success");
+
+            return true;
+        } catch (error) {
+            console.log("error");
+            await session.abortTransaction();
+
+            return false;
+        } finally {
+            session.endSession().then(() => console.log("Transaction ended"));
+        }
     }
 }

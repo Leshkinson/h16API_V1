@@ -1,4 +1,4 @@
-import { IBanUser } from "../interface/user.interface";
+import { IBan, IBanUser } from "../interface/user.interface";
 import { IsBoolean, IsNotEmpty, IsString, MinLength } from "class-validator";
 import { IBlogBanned } from "../../blogs/interface/blog.interface";
 
@@ -11,6 +11,12 @@ export class BanUserDto implements IBanUser {
     @IsString()
     @IsNotEmpty()
     readonly banReason: string;
+}
+
+export class BanBlogDto implements IBan {
+    @IsBoolean()
+    @IsNotEmpty()
+    readonly isBanned: boolean;
 }
 
 export class BanUserDtoForBlog implements IBlogBanned {

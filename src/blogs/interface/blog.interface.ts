@@ -7,8 +7,15 @@ export interface ICreateBlogDto {
     readonly websiteUrl: string;
 }
 
-export interface IBlog extends ICreateBlogDto {
+export interface IBlog extends mongoose.Document {
     readonly _id: mongoose.Schema.Types.ObjectId;
+    readonly name: string;
+    readonly description: string;
+    readonly websiteUrl: string;
+    readonly banInfo: {
+        isBanned: boolean;
+        banDate: string;
+    };
 }
 
 export interface IBlogWithUserId extends IBlog {
@@ -18,7 +25,7 @@ export interface IBlogWithUserId extends IBlog {
 export interface IBlogWithBlogOwnerInfo extends IBlogWithUserId {
     readonly createdAt: string;
     readonly isMembership: boolean;
-    blogOwnerInfo: {
+    readonly blogOwnerInfo: {
         readonly userId: string;
         readonly userLogin: string;
     };

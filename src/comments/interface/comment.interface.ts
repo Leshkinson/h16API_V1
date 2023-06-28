@@ -13,3 +13,11 @@ export interface IComment extends IContent {
     };
     likesInfo: LikeInfo;
 }
+export interface ICommentFullInformation extends IComment {
+    postInfo: {
+        id: string;
+        title: string;
+        blogId: string;
+        blogName: string;
+    };
+}

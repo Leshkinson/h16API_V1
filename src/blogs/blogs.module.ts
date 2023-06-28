@@ -26,6 +26,7 @@ import { banListProviders } from "../sup-services/query/ban-list.providers";
 //import { FindOneBlogUseCase } from "./use-cases/find-one-blog-use-case";
 import { CommandBus, CqrsModule, QueryBus } from "@nestjs/cqrs";
 import { FindOneBlogHandler } from "./use-cases/find-one-blog-use-case";
+import { BanListForBlogRepository } from "../sup-services/query/ban-list-for-blog.repository";
 
 //const useCases = [FindOneBlogUseCase];
 
@@ -65,6 +66,10 @@ import { FindOneBlogHandler } from "./use-cases/find-one-blog-use-case";
         {
             provide: "banListRepository",
             useValue: BanListRepository,
+        },
+        {
+            provide: "banListForBlogRepository",
+            useValue: BanListForBlogRepository,
         },
         ...banListProviders,
         ...blogsProviders,

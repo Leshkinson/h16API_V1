@@ -1,5 +1,5 @@
 import mongoose, { Schema } from "mongoose";
-import { IComment } from "../interface/comment.interface";
+import { IComment, ICommentFullInformation } from "../interface/comment.interface";
 
 export const CommentsSchema = new Schema(
     {
@@ -13,6 +13,12 @@ export const CommentsSchema = new Schema(
             likesCount: { type: "number", default: 0 },
             dislikesCount: { type: "number", default: 0 },
             myStatus: { type: "string", default: "None" },
+        },
+        postInfo: {
+            id: { type: "string", required: true },
+            title: { type: "string", required: true },
+            blogId: { type: "string", required: true },
+            blogName: { type: "string", required: true },
         },
     },
     { timestamps: true },
@@ -30,4 +36,4 @@ CommentsSchema.set("toJSON", {
 
 CommentsSchema.set("id", true);
 
-export const CommentModel = mongoose.model<IComment>("Comment", CommentsSchema);
+export const CommentModel = mongoose.model<IComment | ICommentFullInformation>("Comment", CommentsSchema);

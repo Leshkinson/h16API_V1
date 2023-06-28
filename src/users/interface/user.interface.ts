@@ -16,9 +16,11 @@ export interface ICreateUserDto {
     password: string;
     email: string;
 }
-
-export interface IBanUser {
+export interface IBan {
     isBanned: boolean;
+}
+
+export interface IBanUser extends IBan {
     banReason: string;
 }
 

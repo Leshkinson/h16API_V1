@@ -15,13 +15,13 @@ import { PostsRepository } from "../../posts/posts.repository";
 import { BlogsRepository } from "../../blogs/blogs.repository";
 import { UsersRepository } from "../../users/users.repository";
 import { CommentModel } from "../../comments/schema/comments.schema";
-import { IComment } from "../../comments/interface/comment.interface";
 import { UpdatePostDtoByQuery } from "../../posts/dto/update-post.dto";
-import { ForbiddenException, Inject, Injectable, NotFoundException } from "@nestjs/common";
 import { CommentsRepository } from "../../comments/comments.repository";
 import { LikesStatusCfgValues, LikesStatusType } from "./types/like.type";
 import { JWT, LIKE_STATUS, TagRepositoryTypeCfgValues } from "../../const/const";
+import { ForbiddenException, Inject, Injectable, NotFoundException } from "@nestjs/common";
 import { ILikeStatus, ILikeStatusWithoutId, UpgradeLikes } from "./interface/like.interface";
+import { IComment, ICommentFullInformation } from "../../comments/interface/comment.interface";
 import { CreatePostDto, CreatePostDtoWithoutIdAndName } from "../../posts/dto/create-post.dto";
 import { IBlog, IBlogWithBlogOwnerInfo, IBlogWithUserId } from "../../blogs/interface/blog.interface";
 
@@ -410,6 +410,7 @@ export class QueryService {
         const skip: number = (+pageNumber - 1) * +pageSize;
         const listIdAllBlogs = await this.getListIdAllBlogsForUser(userId);
         const listIdAllPostsForUsersBlog = await this.getListIdAllPostsForUsersBlog(listIdAllBlogs);
+        console.log("listIdAllPostsForUsersBlog", listIdAllPostsForUsersBlog);
         return await this.commentRepository.findAllForThePost(
             listIdAllPostsForUsersBlog,
             sortBy,
@@ -417,6 +418,25 @@ export class QueryService {
             skip,
             pageSize,
         );
+    }
+
+    public async getMapComments(comments): Promise<ICommentFullInformation[]> {
+        console.log("comments in queryService");
+        return comments.map(async (comment) => {
+            const post = await this.postRepository.find(comment.postId);
+            console.log("comment before", comment);
+            const postInfo = {
+                id: post._id.toString(),
+                title: post.title,
+                blogId: post.blogId,
+                blogName: post.blogName,
+            };
+            comment.postInfo = postInfo;
+            console.log("postInfo", postInfo);
+            console.log("comment after", comment);
+            console.log();
+            return comment;
+        });
     }
 
     public async getTotalCountCommentsForTheAllPostForBlogger(userId: string): Promise<number> {

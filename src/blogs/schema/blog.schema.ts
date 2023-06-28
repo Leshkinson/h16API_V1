@@ -23,6 +23,7 @@ BlogSchema.set("toJSON", {
         delete dto.__v;
         delete dto.updatedAt;
         delete dto.userId;
+        delete dto.banInfo;
     },
 });
 
