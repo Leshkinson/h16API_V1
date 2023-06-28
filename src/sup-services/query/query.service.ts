@@ -24,6 +24,8 @@ import { ILikeStatus, ILikeStatusWithoutId, UpgradeLikes } from "./interface/lik
 import { IComment, ICommentFullInformation } from "../../comments/interface/comment.interface";
 import { CreatePostDto, CreatePostDtoWithoutIdAndName } from "../../posts/dto/create-post.dto";
 import { IBlog, IBlogWithBlogOwnerInfo, IBlogWithUserId } from "../../blogs/interface/blog.interface";
+import {BanListForBlogRepository} from "./ban-list-for-blog.repository";
+import {BanListForBlogModel} from "./schema/ban-list-for-blog.schema";
 
 @Injectable()
 export class QueryService {
@@ -35,6 +37,7 @@ export class QueryService {
         @Inject("userRepository") private readonly userRepository: UsersRepository,
         @Inject("commentRepository") private readonly commentRepository: CommentsRepository,
         @Inject("banListRepository") private readonly banListRepository: BanListRepository,
+        @Inject("banListForBlogRepository") private readonly banListForBlogRepository: BanListForBlogRepository,
     ) {
         this.postRepository = new PostsRepository(PostModel);
         this.blogRepository = new BlogsRepository(BlogModel);
@@ -42,6 +45,7 @@ export class QueryService {
         this.userRepository = new UsersRepository(UserModel);
         this.commentRepository = new CommentsRepository(CommentModel);
         this.banListRepository = new BanListRepository(BanListModel);
+        this.banListForBlogRepository = new BanListForBlogRepository(BanListForBlogModel);
     }
 
     public async getTotalCountPostsForTheBlog(blogId: RefType): Promise<number> {
@@ -114,6 +118,7 @@ export class QueryService {
         const skip: number = (+pageNumber - 1) * +pageSize;
         if (blog) {
             return this.postRepository.findAll(
+                [],
                 blog?._id?.toString(),
                 pageNumber,
                 pageSize,
@@ -272,6 +277,13 @@ export class QueryService {
         return arrayInBanList.map((item: IBanList) => {
             return item.userId.toString();
         });
+    }
+
+    public async getArrayBlogIdBanList(): Promise<string[]> {
+        const arrayBlogIdFromBanList = await this.banListForBlogRepository.findAllBlogInBanList();
+        return arrayBlogIdFromBanList.map((item) => {
+            return item.blogId.toString()
+        })
     }
 
     public async getLikes(id: string): Promise<ILikeStatus[] | ILikeStatusWithoutId[] | null> {

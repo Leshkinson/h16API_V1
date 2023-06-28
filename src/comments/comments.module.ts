@@ -24,6 +24,8 @@ import { MailModule } from "../sup-services/application/mailer/mail.module";
 import { MailService } from "../sup-services/application/mailer/mail.service";
 import { BanListRepository } from "../sup-services/query/ban-list.repository";
 import { banListProviders } from "../sup-services/query/ban-list.providers";
+import {BanListForBlogRepository} from "../sup-services/query/ban-list-for-blog.repository";
+import {banListForBlogProviders} from "../sup-services/query/ban-list-for-blog.providers";
 
 @Module({
     imports: [DatabaseModule, MailModule],
@@ -68,6 +70,11 @@ import { banListProviders } from "../sup-services/query/ban-list.providers";
             provide: "banListRepository",
             useValue: BanListRepository,
         },
+        {
+            provide: "banListForBlogRepository",
+            useValue: BanListForBlogRepository
+        },
+        ...banListForBlogProviders,
         ...banListProviders,
         ...blogsProviders,
         ...likesProviders,

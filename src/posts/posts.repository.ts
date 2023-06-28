@@ -13,6 +13,7 @@ export class PostsRepository {
     }
 
     public async findAll(
+        arrayBlogIdBanList: string[],
         blogId?: RefType | object,
         pageNumber = 1,
         limit = 10,
@@ -22,7 +23,7 @@ export class PostsRepository {
     ): Promise<IPost[]> {
         const filter = blogId ? { blogId } : {};
         return this.postModel
-            .find(filter)
+            .find({ $and: [filter, { blogId: { $nin: arrayBlogIdBanList } }] })
             .sort({ [sortBy]: sortDirection })
             .skip(skip)
             .limit(limit);

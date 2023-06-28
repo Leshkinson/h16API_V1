@@ -31,10 +31,11 @@ export class PostsService {
         pageSize = 10,
         sortBy = "createdAt",
         sortDirection: SortOrder = "desc",
+        arrayBlogIdBanList: string[]
     ): Promise<IPost[]> {
         const skip: number = (pageNumber - 1) * pageSize;
 
-        return await this.postRepository.findAll(null, pageNumber, pageSize, sortBy, skip, sortDirection);
+        return await this.postRepository.findAll(arrayBlogIdBanList, null, pageNumber, pageSize, sortBy, skip, sortDirection);
     }
 
     public async findOne(id: RefType): Promise<IPost | undefined> {

@@ -52,8 +52,8 @@ export class PostsController {
             let { pageNumber, pageSize, sortBy, sortDirection } = req.query as PostsRequest;
             pageNumber = Number(pageNumber ?? 1);
             pageSize = Number(pageSize ?? 10);
-
-            const posts: IPost[] = await this.postsService.findAllPosts(pageNumber, pageSize, sortBy, sortDirection);
+            const arrayBlogIdBanList = await this.queryService.getArrayBlogIdBanList();
+            const posts: IPost[] = await this.postsService.findAllPosts(pageNumber, pageSize, sortBy, sortDirection, arrayBlogIdBanList);
             const totalCount: number = await this.postsService.getTotalCountForPosts();
             if (posts) {
                 res.status(HttpStatus.OK).json({

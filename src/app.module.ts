@@ -14,6 +14,7 @@ import { QueryService } from "./sup-services/query/query.service";
 import { CommentsRepository } from "./comments/comments.repository";
 import { LikesRepository } from "./sup-services/query/like.repository";
 import { BanListRepository } from "./sup-services/query/ban-list.repository";
+import {BanListForBlogRepository} from "./sup-services/query/ban-list-for-blog.repository";
 
 @Module({
     imports: [BlogsModule, PostsModule, DatabaseModule, CommentsModule, SessionsModule, AuthModule, UsersModule],
@@ -43,6 +44,10 @@ import { BanListRepository } from "./sup-services/query/ban-list.repository";
         {
             provide: "banListRepository",
             useValue: BanListRepository,
+        },
+        {
+            provide: "banListForBlogRepository",
+            useValue: BanListForBlogRepository
         },
     ],
 })
