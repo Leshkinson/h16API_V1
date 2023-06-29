@@ -119,13 +119,15 @@ export class BlogsService {
 
     public async assigningBanToBlog(id: RefType, banBlogDto: BanBlogDto) {
         const candidateBlogForBan = await this.findOne(id);
-        if (candidateBlogForBan) {
+        console.log("candidateBlogForBan", candidateBlogForBan);
+        if (!candidateBlogForBan) {
             throw new Error();
         }
 
         const banCondition = !candidateBlogForBan.banInfo.isBanned && banBlogDto.isBanned;
         const unBanCondition = candidateBlogForBan.banInfo.isBanned && !banBlogDto.isBanned;
         if (!banCondition && !unBanCondition) {
+            console.log("here1");
             return false;
         }
 
@@ -133,12 +135,15 @@ export class BlogsService {
         try {
             session.startTransaction();
             if (banCondition) {
+                console.log("here2");
                 const banDate = new Date().toISOString();
                 candidateBlogForBan.banInfo.isBanned = banBlogDto.isBanned;
                 candidateBlogForBan.banInfo.banDate = banDate;
                 await candidateBlogForBan.save();
                 await this.banListForBlogRepository.addBlogInBanList(id);
             } else {
+                console.log("here3");
+
                 candidateBlogForBan.banInfo.isBanned = banBlogDto.isBanned;
                 candidateBlogForBan.banInfo.banDate = null;
                 await candidateBlogForBan.save();

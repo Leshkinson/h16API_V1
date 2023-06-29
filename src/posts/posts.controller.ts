@@ -53,7 +53,13 @@ export class PostsController {
             pageNumber = Number(pageNumber ?? 1);
             pageSize = Number(pageSize ?? 10);
             const arrayBlogIdBanList = await this.queryService.getArrayBlogIdBanList();
-            const posts: IPost[] = await this.postsService.findAllPosts(pageNumber, pageSize, sortBy, sortDirection, arrayBlogIdBanList);
+            const posts: IPost[] = await this.postsService.findAllPosts(
+                pageNumber,
+                pageSize,
+                sortBy,
+                sortDirection,
+                arrayBlogIdBanList,
+            );
             const totalCount: number = await this.postsService.getTotalCountForPosts();
             if (posts) {
                 res.status(HttpStatus.OK).json({
@@ -76,7 +82,9 @@ export class PostsController {
     public async getOne(@Param("id") id: string, @Req() req: Request, @Res() res: Response) {
         try {
             const token = req.headers.authorization?.split(" ")[1];
-            const findPost: IPost | undefined = await this.postsService.findOne(id);
+            const arrayBlogIdBanList = await this.queryService.getArrayBlogIdBanList();
+            const findPost = await this.postsService.findOne(id, arrayBlogIdBanList);
+            //console.log("findPost", findPost);
             if (findPost) {
                 const newFindPost = await this.queryService.getUpgradePosts(
                     findPost,

@@ -31,16 +31,27 @@ export class PostsService {
         pageSize = 10,
         sortBy = "createdAt",
         sortDirection: SortOrder = "desc",
-        arrayBlogIdBanList: string[]
+        arrayBlogIdBanList: string[],
     ): Promise<IPost[]> {
         const skip: number = (pageNumber - 1) * pageSize;
 
-        return await this.postRepository.findAll(arrayBlogIdBanList, null, pageNumber, pageSize, sortBy, skip, sortDirection);
+        return await this.postRepository.findAll(
+            arrayBlogIdBanList,
+            null,
+            pageNumber,
+            pageSize,
+            sortBy,
+            skip,
+            sortDirection,
+        );
     }
 
-    public async findOne(id: RefType): Promise<IPost | undefined> {
+    public async findOne(id: RefType, arrayBlogIdBanList: string[]): Promise<IPost | undefined> {
         const post = await this.postRepository.find(id);
         if (!post) throw new Error();
+        const findPost = arrayBlogIdBanList.find((item) => item === post.blogId);
+        console.log("findPost", findPost);
+        if (typeof findPost === "string" || !findPost) throw new Error();
 
         return post;
     }

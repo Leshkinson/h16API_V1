@@ -71,7 +71,7 @@ export class BloggerBlogsController {
         try {
             const request = req as RequestWithUser;
             const { userId } = request.user;
-            console.log("userId", userId);
+            //console.log("userId", userId);
             const newBlog: IBlog = await this.blogsService.createBlog(createBlogDto, userId);
             res.status(HttpStatus.CREATED).json(newBlog);
         } catch (error) {

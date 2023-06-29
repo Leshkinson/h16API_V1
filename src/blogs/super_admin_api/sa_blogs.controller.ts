@@ -28,7 +28,7 @@ export class SABlogsController {
             );
             const totalCount: number = await this.blogsService.getTotalCountForBlogs(searchNameTerm, null);
             const changeBlogs = await this.queryService.changeBlogsForSA(blogs);
-            console.log("changeBlogs", changeBlogs);
+            //console.log("changeBlogs", changeBlogs);
             res.status(HttpStatus.OK).json({
                 pagesCount: Math.ceil(totalCount / pageSize),
                 page: pageNumber,
@@ -63,8 +63,12 @@ export class SABlogsController {
     @Put(":id/ban")
     public async banOrUnbanBlog(@Param("id") id: string, @Body() banBlogDto: BanBlogDto, @Res() res: Response) {
         try {
+            console.log("here is PUTTT");
+            console.log("banBlogDto", banBlogDto);
             const blogBan = await this.blogsService.assigningBanToBlog(id, banBlogDto);
+            console.log("blogBan", blogBan);
             if (blogBan) {
+                console.log("hererererererer");
                 res.sendStatus(HttpStatus.NO_CONTENT);
                 return;
             }

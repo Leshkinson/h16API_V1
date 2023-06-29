@@ -33,7 +33,7 @@ export class PublicBlogsController {
                 "null",
             );
             const totalCount: number = await this.blogsService.getTotalCountForBlogs(searchNameTerm, null);
-
+            console.log("blogs in publicccccccccccccccccccccc", blogs);
             res.status(HttpStatus.OK).json({
                 pagesCount: Math.ceil(totalCount / pageSize),
                 page: pageNumber,
@@ -54,7 +54,7 @@ export class PublicBlogsController {
     public async findOne(@Param("id") id: string, @Res() res: Response) {
         try {
             const findBlog: IBlog | undefined = await this.commandBus.execute(new FindOneBlogCommand(id));
-
+            console.log("findBlog in publiccccccccccccccccc", findBlog);
             res.status(HttpStatus.OK).json(findBlog);
         } catch (error) {
             if (error instanceof Error) {

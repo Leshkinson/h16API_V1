@@ -25,7 +25,7 @@ export class AuthController {
     public async login(@Body() authDto: AuthDto, @Req() req: Request, @Res() res: Response) {
         try {
             const user = await this.usersService.verifyUser(authDto);
-            console.log(user);
+            //console.log(user);
             if (user && user.isConfirmed) {
                 const sessionDevice = await this.sessionsService.generateSession(
                     req.ip,

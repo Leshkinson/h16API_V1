@@ -17,15 +17,16 @@ import { UsersRepository } from "../../users/users.repository";
 import { CommentModel } from "../../comments/schema/comments.schema";
 import { UpdatePostDtoByQuery } from "../../posts/dto/update-post.dto";
 import { CommentsRepository } from "../../comments/comments.repository";
+import { BanListForBlogModel } from "./schema/ban-list-for-blog.schema";
 import { LikesStatusCfgValues, LikesStatusType } from "./types/like.type";
+import { BanListForBlogRepository } from "./ban-list-for-blog.repository";
 import { JWT, LIKE_STATUS, TagRepositoryTypeCfgValues } from "../../const/const";
 import { ForbiddenException, Inject, Injectable, NotFoundException } from "@nestjs/common";
 import { ILikeStatus, ILikeStatusWithoutId, UpgradeLikes } from "./interface/like.interface";
 import { IComment, ICommentFullInformation } from "../../comments/interface/comment.interface";
 import { CreatePostDto, CreatePostDtoWithoutIdAndName } from "../../posts/dto/create-post.dto";
 import { IBlog, IBlogWithBlogOwnerInfo, IBlogWithUserId } from "../../blogs/interface/blog.interface";
-import {BanListForBlogRepository} from "./ban-list-for-blog.repository";
-import {BanListForBlogModel} from "./schema/ban-list-for-blog.schema";
+import { log } from "util";
 
 @Injectable()
 export class QueryService {
@@ -282,8 +283,8 @@ export class QueryService {
     public async getArrayBlogIdBanList(): Promise<string[]> {
         const arrayBlogIdFromBanList = await this.banListForBlogRepository.findAllBlogInBanList();
         return arrayBlogIdFromBanList.map((item) => {
-            return item.blogId.toString()
-        })
+            return item.blogId.toString();
+        });
     }
 
     public async getLikes(id: string): Promise<ILikeStatus[] | ILikeStatusWithoutId[] | null> {
@@ -396,6 +397,10 @@ export class QueryService {
                     userId: blog.userId,
                     userLogin: user.login,
                 },
+                banInfo: {
+                    isBanned: blog.banInfo.isBanned,
+                    banDate: blog.banInfo.banDate,
+                },
             };
         });
 
@@ -433,10 +438,9 @@ export class QueryService {
     }
 
     public async getMapComments(comments): Promise<ICommentFullInformation[]> {
-        console.log("comments in queryService");
         return comments.map(async (comment) => {
             const post = await this.postRepository.find(comment.postId);
-            console.log("comment before", comment);
+            console.log("post", post);
             const postInfo = {
                 id: post._id.toString(),
                 title: post.title,
@@ -444,9 +448,6 @@ export class QueryService {
                 blogName: post.blogName,
             };
             comment.postInfo = postInfo;
-            console.log("postInfo", postInfo);
-            console.log("comment after", comment);
-            console.log();
             return comment;
         });
     }
