@@ -12,7 +12,7 @@ export class BloggerUsersController {
     constructor(private readonly usersService: UsersService, private readonly queryService: QueryService) {}
 
     @UseGuards(AccessGuard)
-    @Put(":id")
+    @Put(":id/ban")
     public async banOrUnbanUserForBLog(
         @Param("id") id: string,
         @Body() banUserDtoForBlog: BanUserDtoForBlog,
